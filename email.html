@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <title>Cyberpunk Santa Transmission</title>
+        <!-- GOOGLE FONTS -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Tektur:wght@400;600;800&display=swap" rel="stylesheet">
+        <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #070712;
+      color: #e0f7ff;
+      overflow-x: hidden;
+    }
+
+    /* LANGUAGE FONTS */
+    .ru {
+      font-family: 'Tektur', sans-serif;
+      letter-spacing: 0.3px;
+    }
+
+    .en {
+      font-family: 'Audiowide', sans-serif;
+      letter-spacing: 1.5px;
+    }
+
+    .mono {
+      font-family: 'Audiowide', monospace;
+    }
+
+    /* MATRIX BACKGROUND */
+    canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+    }
+
+    /* LAYOUT */
+    .wrapper {
+      position: relative;
+      z-index: 10;
+      padding: 40px 0;
+    }
+
+  .email {
+    width: 740px;
+    margin: 0 auto;
+    background: #0b0b1a;
+    border: 4px solid #00f6ff;
+    box-shadow: 0 0 25px rgba(0, 246, 255, 0.8);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+    .header {
+      text-align: center;
+      padding: 28px;
+      background: linear-gradient(180deg, #0f1233, #050514);
+    }
+
+    .badge {
+      font-size: 12px;
+      color: #ff00ff;
+      letter-spacing: 3px;
+    }
+
+    .title {
+      margin-top: 14px;
+      font-size: 26px;
+      color: #00f6ff;
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #8affff;
+    }
+
+    .section {
+      padding: 26px;
+      font-size: 15px;
+    }
+
+    .block {
+      margin-bottom: 22px;
+      padding: 20px;
+      border: 3px solid #ff00ff;
+      background: #050514;
+      color: #00ffcc;
+      line-height: 1.7;
+      border-radius: 8px;
+    }
+
+    .block.blue {
+      border-color: #00f6ff;
+      background: #070720;
+      color: #e0f7ff;
+    }
+
+    .block.dashed {
+      border-style: dashed;
+    }
+
+    .signature {
+      padding: 26px;
+      text-align: right;
+      font-size: 14px;
+    }
+
+    .end {
+      color: #ff00ff;
+      margin-bottom: 10px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 11px;
+      color: #7a7aff;
+      background: #050514;
+    }
+
+    .preloader {
+  position: fixed;
+  inset: 0;
+  background: rgba(7,7,18,0.95);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.preloader.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.preloader-box {
+  border: 3px solid #00f6ff;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 0 30px #00f6ff;
+  background: #0b0b1a;
+}
+
+.preloader-title {
+  font-size: 20px;
+  color: #00f6ff;
+  margin-bottom: 25px;
+}
+
+.preloader-btn,
+.close-btn {
+  background: none;
+  border: 2px solid #ff00ff;
+  color: #ff00ff;
+  padding: 12px 26px;
+  cursor: pointer;
+  font-size: 14px;
+  letter-spacing: 2px;
+  transition: all 0.3s ease;
+}
+
+.preloader-btn:hover,
+.close-btn:hover {
+  background: #ff00ff;
+  color: #070712;
+  box-shadow: 0 0 20px #ff00ff;
+}
+
+/* GLITCH EFFECT */
+.glitch {
+  animation: glitch 0.6s steps(2, end);
+}
+
+@keyframes glitch {
+  0%   { filter: none; transform: translate(0); }
+  20%  { filter: hue-rotate(90deg); transform: translate(-5px, 3px); }
+  40%  { filter: invert(1); transform: translate(5px, -3px); }
+  60%  { filter: contrast(200%); transform: translate(-3px, 2px); }
+  80%  { filter: saturate(300%); transform: translate(3px, -2px); }
+  100% { filter: none; transform: translate(0); }
+}
+
+/* HIDE EMAIL INIT */
+.wrapper {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.wrapper.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* CLOSE BUTTON POSITION */
+.close-btn {
+  margin-top: 20px;
+}
+
+    @media (max-width: 640px) {
+      .email {
+        width: 95%;
+      }
+    }
+        </style>
+    </head>
+    <body>
+        <canvas id="matrix"></canvas>
+        <div class="preloader active" id="preloader">
+            <div class="preloader-box">
+                <div class="preloader-title ru">ВХОДЯЩЕЕ СООБЩЕНИЕ</div>
+                <button class="preloader-btn ru" id="openBtn">
+                    ОТКРЫТЬ ПИСЬМО
+                </button>
+            </div>
+        </div>
+        <div class="wrapper">
+            <div class="email">
+                <!-- HEADER -->
+                <div class="header">
+                    <div class="badge en">ACCESS LEVEL: ★★★★★</div>
+                    <div class="title en">CYBER SANTA TRANSMISSION</div>
+                    <div class="subtitle en">CHANNEL: NORTH POLE / SECURE NET</div>
+                </div>
+                <!-- GREETING -->
+                <div class="section ru">
+                    <strong>Получатель:</strong>
+                    Дед Мороз Арокен
+                    <br>
+                    <strong>Роль:</strong>
+                    Фрилансер Салават
+                </div>
+                <!-- MAIN CONTENT -->
+                <div class="section ru">
+                    <div class="block mono">
+                        <span class="en">&gt; INIT MESSAGE...</span>
+                        <br>
+                        <br>
+                        Соединение установлено.
+                        <br>
+                        Система работала нестабильно,
+                        <br>
+                        но надежда на апгрейд активна.
+                        <br>
+                        <br>
+                        Запросы на новый цикл:
+                    </div>
+                    <div class="block blue ru">
+                        ■ Стабильный код без багов
+                        <br>
+                        ■ Интернет без лагов и таймаутов
+                        <br>
+                        ■ Клиенты без «а давай по-другому»
+                        <br>
+                        ■ Финансовый буст ×2
+                        <br>
+                        ■ RNG-удача включена
+                    </div>
+                    <div class="block dashed ru">
+                        ■ Не деплоить в пятницу
+                        <br>
+                        ■ Делать бэкапы (честно)
+                        <br>
+                        ■ Писать комментарии к коду
+                        <br>
+                        ■ Верить в новогодний апдейт
+                    </div>
+                </div>
+                <!-- SIGNATURE -->
+                <div class="signature ru">
+                    <div class="end en">&gt; END TRANSMISSION</div>
+                    Отправитель:
+                    <br>
+                    <strong class="en">[ USER_2077_SALAVATTEACH ]</strong>
+                    <button class="close-btn ru" id="closeBtn">
+                        ЗАКРЫТЬ СООБЩЕНИЕ
+                    </button>
+                </div>
+                <!-- FOOTER -->
+                <div class="footer en">
+                    © 2077 NORTH AROKEN CORP
+                    <br>
+                    Unauthorized access prohibited
+                </div>
+            </div>
+        </div>
+        <!-- MATRIX SNOW SCRIPT -->
+        <script>
+  const preloader = document.getElementById('preloader');
+  const wrapper = document.querySelector('.wrapper');
+  const openBtn = document.getElementById('openBtn');
+  const closeBtn = document.getElementById('closeBtn');
+  const body = document.body;
+
+  function glitchTransition(callback) {
+    body.classList.add('glitch');
+    setTimeout(() => {
+      body.classList.remove('glitch');
+      callback();
+    }, 600);
+  }
+
+  openBtn.addEventListener('click', () => {
+    glitchTransition(() => {
+      preloader.classList.remove('active');
+      wrapper.classList.add('active');
+    });
+  });
+
+  closeBtn.addEventListener('click', () => {
+    glitchTransition(() => {
+      wrapper.classList.remove('active');
+      preloader.classList.add('active');
+    });
+  });
+
+  // INIT
+  preloader.classList.add('active');
+        </script>
+        <script>
+  const canvas = document.getElementById('matrix');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+
+  const symbols = ['❄', '❅', '❆'];
+  const fontSize = 18;
+  let columns = Math.floor(canvas.width / fontSize);
+  let drops = Array(columns).fill(1);
+
+  function draw() {
+    ctx.fillStyle = 'rgba(7,7,18,0.2)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#00f6ff';
+    ctx.font = fontSize + 'px monospace';
+
+    for (let i = 0; i < drops.length; i++) {
+      const text = symbols[Math.floor(Math.random() * symbols.length)];
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+  }
+
+  setInterval(draw, 50);
+
+  window.addEventListener('resize', () => {
+    resize();
+    columns = Math.floor(canvas.width / fontSize);
+    drops = Array(columns).fill(1);
+  });
+        </script>
+    </body>
+</html>
